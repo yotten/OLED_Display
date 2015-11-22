@@ -41,12 +41,12 @@ struct s_opts
 {
 	int oled;
 	int verbose;
-} ;
+};
 
 // default options values
 s_opts opts = {
 	OLED_ADAFRUIT_SPI_128x32,	// Default oled
-  false										// Not verbose
+	false				// Not verbose
 };
 
 #define NUMFLAKES 10
@@ -54,208 +54,229 @@ s_opts opts = {
 #define YPOS 1
 #define DELTAY 2
 
-#define LOGO16_GLCD_HEIGHT 16 
-#define LOGO16_GLCD_WIDTH  16 
+#define LOGO16_GLCD_HEIGHT 16
+#define LOGO16_GLCD_WIDTH  16
+
 static unsigned char logo16_glcd_bmp[] =
-{ 0b00000000, 0b11000000,
-  0b00000001, 0b11000000,
-  0b00000001, 0b11000000,
-  0b00000011, 0b11100000,
-  0b11110011, 0b11100000,
-  0b11111110, 0b11111000,
-  0b01111110, 0b11111111,
-  0b00110011, 0b10011111,
-  0b00011111, 0b11111100,
-  0b00001101, 0b01110000,
-  0b00011011, 0b10100000,
-  0b00111111, 0b11100000,
-  0b00111111, 0b11110000,
-  0b01111100, 0b11110000,
-  0b01110000, 0b01110000,
-  0b00000000, 0b00110000 };
+{
+	0b00000000, 0b11000000,
+	0b00000001, 0b11000000,
+	0b00000001, 0b11000000,
+	0b00000011, 0b11100000,
+	0b11110011, 0b11100000,
+	0b11111110, 0b11111000,
+	0b01111110, 0b11111111,
+	0b00110011, 0b10011111,
+	0b00011111, 0b11111100,
+	0b00001101, 0b01110000,
+	0b00011011, 0b10100000,
+	0b00111111, 0b11100000,
+	0b00111111, 0b11110000,
+	0b01111100, 0b11110000,
+	0b01110000, 0b01110000,
+	0b00000000, 0b00110000
+};
 
 
-void testdrawbitmap(const uint8_t *bitmap, uint8_t w, uint8_t h) {
-  uint8_t icons[NUMFLAKES][3];
-  srandom(666);     // whatever seed
+void testdrawbitmap(const uint8_t *bitmap, uint8_t w, uint8_t h)
+{
+	uint8_t icons[NUMFLAKES][3];
+	srandom(666);     // whatever seed
  
-  // initialize
-  for (uint8_t f=0; f< NUMFLAKES; f++) {
-    icons[f][XPOS] = random() % display.width();
-    icons[f][YPOS] = 0;
-    icons[f][DELTAY] = random() % 5 + 1;
+	// initialize
+	for (uint8_t f = 0; f < NUMFLAKES; f++) {
+		icons[f][XPOS] = random() % display.width();
+		icons[f][YPOS] = 0;
+		icons[f][DELTAY] = random() % 5 + 1;
     
-    printf("x: %d", icons[f][XPOS]);
-    printf("y: %d", icons[f][YPOS]);
-    printf("dy: %d\n", icons[f][DELTAY]);
-  }
+		printf("x: %d", icons[f][XPOS]);
+		printf("y: %d", icons[f][YPOS]);
+		printf("dy: %d\n", icons[f][DELTAY]);
+	}
 
-  while (1) {
-    // draw each icon
-    for (uint8_t f=0; f< NUMFLAKES; f++) {
-      display.drawBitmap(icons[f][XPOS], icons[f][YPOS], logo16_glcd_bmp, w, h, WHITE);
-    }
-    display.display();
-    usleep(100000);
+	while (1) {
+		// draw each icon
+		for (uint8_t f = 0; f < NUMFLAKES; f++) {
+			display.drawBitmap(icons[f][XPOS], icons[f][YPOS], logo16_glcd_bmp, w, h, WHITE);
+		}
+		display.display();
+		usleep(100000);
     
-    // then erase it + move it
-    for (uint8_t f=0; f< NUMFLAKES; f++) {
-      display.drawBitmap(icons[f][XPOS], icons[f][YPOS],  logo16_glcd_bmp, w, h, BLACK);
-      // move it
-      icons[f][YPOS] += icons[f][DELTAY];
-      // if its gone, reinit
-      if (icons[f][YPOS] > display.height()) {
-	icons[f][XPOS] = random() % display.width();
-	icons[f][YPOS] = 0;
-	icons[f][DELTAY] = random() % 5 + 1;
-      }
-    }
-   }
+		// then erase it + move it
+		for (uint8_t f = 0; f < NUMFLAKES; f++) {
+			display.drawBitmap(icons[f][XPOS], icons[f][YPOS],  logo16_glcd_bmp, w, h, BLACK);
+			// move it
+			icons[f][YPOS] += icons[f][DELTAY];
+			// if its gone, reinit
+			if (icons[f][YPOS] > display.height()) {
+				icons[f][XPOS] = random() % display.width();
+				icons[f][YPOS] = 0;
+				icons[f][DELTAY] = random() % 5 + 1;
+			}
+		}
+	}
 }
 
 
-void testdrawchar(void) {
-  display.setTextSize(1);
-  display.setTextColor(WHITE);
-  display.setCursor(0,0);
+void testdrawchar(void)
+{
+	display.setTextSize(1);
+	display.setTextColor(WHITE);
+	display.setCursor(0,0);
 
-  for (uint8_t i=0; i < 168; i++) {
-    if (i == '\n') continue;
-    display.write(i);
-    if ((i > 0) && (i % 21 == 0))
-      display.print("\n");
-  }    
-  display.display();
+	for (uint8_t i = 0; i < 168; i++) {
+		if (i == '\n')
+			continue;
+		display.write(i);
+		if ((i > 0) && (i % 21 == 0))
+			display.print("\n");
+	}    
+	display.display();
 }
 
-void testdrawcircle(void) {
-  for (int16_t i=0; i<display.height(); i+=2) {
-    display.drawCircle(display.width()/2, display.height()/2, i, WHITE);
-    display.display();
-  }
+void testdrawcircle(void)
+{
+	for (int16_t i = 0; i < display.height(); i += 2) {
+		display.drawCircle(display.width()/2, display.height()/2, i, WHITE);
+		display.display();
+	}
 }
 
-void testfillrect(void) {
-  uint8_t color = 1;
-  for (int16_t i=0; i<display.height()/2; i+=3) {
-    // alternate colors
-    display.fillRect(i, i, display.width()-i*2, display.height()-i*2, color%2);
-    display.display();
-    color++;
-  }
+void testfillrect(void)
+{
+	uint8_t color = 1;
+
+	for (int16_t i = 0; i < display.height() / 2; i += 3) {
+		// alternate colors
+		display.fillRect(i, i, display.width()-i*2, display.height()-i*2, color%2);
+		display.display();
+		color++;
+	}
 }
 
-void testdrawtriangle(void) {
-  for (int16_t i=0; i<min(display.width(),display.height())/2; i+=5) {
-    display.drawTriangle(display.width()/2, display.height()/2-i,
+void testdrawtriangle(void)
+{
+	for (int16_t i = 0; i < min(display.width(), display.height()) / 2; i += 5) {
+		display.drawTriangle(display.width()/2, display.height()/2-i,
                      display.width()/2-i, display.height()/2+i,
                      display.width()/2+i, display.height()/2+i, WHITE);
-    display.display();
-  }
+		display.display();
+	}
 }
 
-void testfilltriangle(void) {
-  uint8_t color = WHITE;
-  for (int16_t i=min(display.width(),display.height())/2; i>0; i-=5) {
-    display.fillTriangle(display.width()/2, display.height()/2-i,
+void testfilltriangle(void)
+{
+	uint8_t color = WHITE;
+
+	for (int16_t i = min(display.width(), display.height()) / 2; i > 0; i-=5) {
+		display.fillTriangle(display.width()/2, display.height()/2-i,
                      display.width()/2-i, display.height()/2+i,
                      display.width()/2+i, display.height()/2+i, WHITE);
-    if (color == WHITE) color = BLACK;
-    else color = WHITE;
-    display.display();
-  }
+		if (color == WHITE)
+			color = BLACK;
+		else
+			color = WHITE;
+		display.display();
+	}
 }
 
-void testdrawroundrect(void) {
-  for (int16_t i=0; i<display.height()/2-2; i+=2) {
-    display.drawRoundRect(i, i, display.width()-2*i, display.height()-2*i, display.height()/4, WHITE);
-    display.display();
-  }
+void testdrawroundrect(void)
+{
+	for (int16_t i = 0; i < display.height() / 2 - 2; i += 2) {
+		display.drawRoundRect(i, i, display.width()-2*i, display.height()-2*i, display.height()/4, WHITE);
+		display.display();
+	}
 }
 
-void testfillroundrect(void) {
-  uint8_t color = WHITE;
-  for (int16_t i=0; i<display.height()/2-2; i+=2) {
-    display.fillRoundRect(i, i, display.width()-2*i, display.height()-2*i, display.height()/4, color);
-    if (color == WHITE) color = BLACK;
-    else color = WHITE;
-    display.display();
-  }
+void testfillroundrect(void)
+{
+	uint8_t color = WHITE;
+
+	for (int16_t i = 0; i < display.height() / 2 - 2; i += 2) {
+		display.fillRoundRect(i, i, display.width()-2*i, display.height()-2*i, display.height()/4, color);
+		if (color == WHITE)
+			color = BLACK;
+		else color = WHITE;
+			display.display();
+	}
 }
    
-void testdrawrect(void) {
-  for (int16_t i=0; i<display.height()/2; i+=2) {
-    display.drawRect(i, i, display.width()-2*i, display.height()-2*i, WHITE);
-    display.display();
-  }
+void testdrawrect(void)
+{
+	for (int16_t i = 0; i < display.height() / 2; i += 2) {
+		display.drawRect(i, i, display.width()-2*i, display.height()-2*i, WHITE);
+		display.display();
+	}
 }
 
-void testdrawline() {  
-  for (int16_t i=0; i<display.width(); i+=4) {
-    display.drawLine(0, 0, i, display.height()-1, WHITE);
-    display.display();
-  }
-  for (int16_t i=0; i<display.height(); i+=4) {
-    display.drawLine(0, 0, display.width()-1, i, WHITE);
-    display.display();
-  }
-  usleep(250000);
+void testdrawline()
+{  
+	for (int16_t i = 0; i < display.width(); i += 4) {
+		display.drawLine(0, 0, i, display.height()-1, WHITE);
+		display.display();
+	}
+	for (int16_t i = 0; i < display.height(); i += 4) {
+		display.drawLine(0, 0, display.width()-1, i, WHITE);
+		display.display();
+	}
+	usleep(250000);
   
-  display.clearDisplay();
-  for (int16_t i=0; i<display.width(); i+=4) {
-    display.drawLine(0, display.height()-1, i, 0, WHITE);
-    display.display();
-  }
-  for (int16_t i=display.height()-1; i>=0; i-=4) {
-    display.drawLine(0, display.height()-1, display.width()-1, i, WHITE);
-    display.display();
-  }
-  usleep(250000);
+	display.clearDisplay();
+	for (int16_t i = 0; i < display.width(); i += 4) {
+		display.drawLine(0, display.height()-1, i, 0, WHITE);
+		display.display();
+	}
+	for (int16_t i = display.height() - 1; i >= 0; i -= 4) {
+		display.drawLine(0, display.height()-1, display.width()-1, i, WHITE);
+		display.display();
+	}
+	usleep(250000);
   
-  display.clearDisplay();
-  for (int16_t i=display.width()-1; i>=0; i-=4) {
-    display.drawLine(display.width()-1, display.height()-1, i, 0, WHITE);
-    display.display();
-  }
-  for (int16_t i=display.height()-1; i>=0; i-=4) {
-    display.drawLine(display.width()-1, display.height()-1, 0, i, WHITE);
-    display.display();
-  }
-  usleep(250000);
+	display.clearDisplay();
+	for (int16_t i=display.width()-1; i>=0; i-=4) {
+		display.drawLine(display.width()-1, display.height()-1, i, 0, WHITE);
+		display.display();
+	}
+	for (int16_t i=display.height()-1; i>=0; i-=4) {
+		display.drawLine(display.width()-1, display.height()-1, 0, i, WHITE);
+		display.display();
+	}
+	usleep(250000);
 
-  display.clearDisplay();
-  for (int16_t i=0; i<display.height(); i+=4) {
-    display.drawLine(display.width()-1, 0, 0, i, WHITE);
-    display.display();
-  }
-  for (int16_t i=0; i<display.width(); i+=4) {
-    display.drawLine(display.width()-1, 0, i, display.height()-1, WHITE); 
-    display.display();
-  }
-  usleep(250000);
+	display.clearDisplay();
+	for (int16_t i=0; i<display.height(); i+=4) {
+		display.drawLine(display.width()-1, 0, 0, i, WHITE);
+		display.display();
+	}
+	for (int16_t i=0; i<display.width(); i+=4) {
+		display.drawLine(display.width()-1, 0, i, display.height()-1, WHITE); 
+		display.display();
+	}
+	usleep(250000);
 }
 
-void testscrolltext(void) {
-  display.setTextSize(2);
-  display.setTextColor(WHITE);
-  display.setCursor(10,0);
-  display.clearDisplay();
-  display.print("scroll");
-  display.display();
+void testscrolltext(void)
+{
+	display.setTextSize(2);
+	display.setTextColor(WHITE);
+	display.setCursor(10,0);
+	display.clearDisplay();
+	display.print("scroll");
+	display.display();
  
-  display.startscrollright(0x00, 0x0F);
-  sleep(2);
-  display.stopscroll();
-  sleep(1);
-  display.startscrollleft(0x00, 0x0F);
-  sleep(2);
-  display.stopscroll();
-  sleep(1);    
-  display.startscrolldiagright(0x00, 0x07);
-  sleep(2);
-  display.startscrolldiagleft(0x00, 0x07);
-  sleep(2);
-  display.stopscroll();
+	display.startscrollright(0x00, 0x0F);
+	sleep(2);
+	display.stopscroll();
+	sleep(1);
+	display.startscrollleft(0x00, 0x0F);
+	sleep(2);
+	display.stopscroll();
+	sleep(1);    
+	display.startscrolldiagright(0x00, 0x07);
+	sleep(2);
+	display.startscrolldiagleft(0x00, 0x07);
+	sleep(2);
+	display.stopscroll();
 }
 
 
@@ -310,30 +331,31 @@ void parse_args(int argc, char *argv[])
 		/* no default error messages printed. */
 		opterr = 0;
 
-    c = getopt_long(argc, argv, "vho:", longOptions, &optionIndex);
+		c = getopt_long(argc, argv, "vho:", longOptions, &optionIndex);
 
 		if (c < 0)
 			break;
 
 		switch (c) 
 		{
-			case 'v': opts.verbose = true	;	break;
+			case 'v': opts.verbose = true;
+				break;
 
 			case 'o':
 				opts.oled = (int) atoi(optarg);
 				
 				if (opts.oled < 0 || opts.oled >= OLED_LAST_OLED )
 				{
-						fprintf(stderr, "--oled %d ignored must be 0 to %d.\n", opts.oled, OLED_LAST_OLED-1);
-						fprintf(stderr, "--oled set to 0 now\n");
-						opts.oled = 0;
+					fprintf(stderr, "--oled %d ignored must be 0 to %d.\n", opts.oled, OLED_LAST_OLED-1);
+					fprintf(stderr, "--oled set to 0 now\n");
+					opts.oled = 0;
 				}
-			break;
+				break;
 
 			case 'h':
 				usage(argv[0]);
 				exit(EXIT_SUCCESS);
-			break;
+				break;
 			
 			case '?':
 			default:
@@ -366,7 +388,6 @@ int main(int argc, char **argv)
 {
 	int i;
 	
-	
 	// Oled supported display in ArduiPi_SSD1306.h
 	// Get OLED type
 	parse_args(argc, argv);
@@ -374,7 +395,7 @@ int main(int argc, char **argv)
 	// SPI
 	if (display.oled_is_spi_proto(opts.oled))
 	{
-printf("%s:%s(%d)\n", __FILE__, __func__, __LINE__);
+		printf("%s:%s(%d)\n", __FILE__, __func__, __LINE__);
 		// SPI change parameters to fit to your LCD
 		if ( !display.init(OLED_SPI_DC,OLED_SPI_RESET,OLED_SPI_CS, opts.oled) )
 			exit(EXIT_FAILURE);
@@ -388,97 +409,97 @@ printf("%s:%s(%d)\n", __FILE__, __func__, __LINE__);
 printf("%s:%s(%d) display.begin()\n", __FILE__, __func__, __LINE__);
 	display.begin();
 printf("%s:%s(%d) display.clearDisplay()\n", __FILE__, __func__, __LINE__);	
-  // init done
-  display.clearDisplay();   // clears the screen and buffer
+	// init done
+	display.clearDisplay();   // clears the screen and buffer
 
+	// draw a single pixel
 printf("%s:%s(%d) draw a single pixel\n", __FILE__, __func__, __LINE__);
-  // draw a single pixel
-  display.drawPixel(10, 10, WHITE);
-  display.display();
-  sleep(2);
-  display.clearDisplay();
+	display.drawPixel(10, 10, WHITE);
+	display.display();
+	sleep(2);
+	display.clearDisplay();
 
+	// draw many lines
 printf("%s:%s(%d) draw many lines\n", __FILE__, __func__, __LINE__);	
-  // draw many lines
-  testdrawline();
-  display.display();
-  sleep(2);
-  display.clearDisplay();
+	testdrawline();
+	display.display();
+	sleep(2);
+	display.clearDisplay();
 
+	// draw rectangles
 printf("%s:%s(%d) draw rectangles\n", __FILE__, __func__, __LINE__);
-  // draw rectangles
-  testdrawrect();
-  display.display();
-  sleep(2);
-  display.clearDisplay();
+	testdrawrect();
+	display.display();
+	sleep(2);
+	display.clearDisplay();
 
+	// draw multiple rectangles
 printf("%s:%s(%d) draw multiple rectangles\n", __FILE__, __func__, __LINE__);
-  // draw multiple rectangles
-  testfillrect();
-  display.display();
-  sleep(2);
-  display.clearDisplay();
+	testfillrect();
+	display.display();
+	sleep(2);
+	display.clearDisplay();
 
+	// draw mulitple circles
 printf("%s:%s(%d) draw multiple circles\n", __FILE__, __func__, __LINE__);
-  // draw mulitple circles
-  testdrawcircle();
-  display.display();
-  sleep(2);
-  display.clearDisplay();
+	testdrawcircle();
+	display.display();
+	sleep(2);
+	display.clearDisplay();
 
+	// draw a white circle, 10 pixel radius
 printf("%s:%s(%d) draw a white circle, 10 pixel radius\n", __FILE__, __func__, __LINE__);
-  // draw a white circle, 10 pixel radius
-  display.fillCircle(display.width()/2, display.height()/2, 10, WHITE);
-  display.display();
-  sleep(2);
-  display.clearDisplay();
+	display.fillCircle(display.width()/2, display.height()/2, 10, WHITE);
+	display.display();
+	sleep(2);
+	display.clearDisplay();
 
 printf("%s:%s(%d) draw round rect\n", __FILE__, __func__, __LINE__);
-  testdrawroundrect();
-  sleep(2);
-  display.clearDisplay();
+	testdrawroundrect();
+	sleep(2);
+	display.clearDisplay();
 
 printf("%s:%s(%d) fill round rect\n", __FILE__, __func__, __LINE__);
-  testfillroundrect();
-  sleep(2);
-  display.clearDisplay();
+	testfillroundrect();
+	sleep(2);
+	display.clearDisplay();
 
 printf("%s:%s(%d) draw triangle\n", __FILE__, __func__, __LINE__);
-  testdrawtriangle();
-  sleep(2);
-  display.clearDisplay();
+	testdrawtriangle();
+	sleep(2);
+	display.clearDisplay();
 
 printf("%s:%s(%d) fill triangle\n", __FILE__, __func__, __LINE__); 
-  testfilltriangle();
-  sleep(2);
-  display.clearDisplay();
+	testfilltriangle();
+	sleep(2);
+	display.clearDisplay();
 
+	// draw the first ~12 characters in the font
 printf("%s:%s(%d) draw the first 12 characters in the font \n", __FILE__, __func__, __LINE__);
-  // draw the first ~12 characters in the font
-  testdrawchar();
-  display.display();
-  sleep(2);
-  display.clearDisplay();
+	testdrawchar();
+	display.display();
+	sleep(2);
+	display.clearDisplay();
 
+	// text display tests
 printf("%s:%s(%d) text display\n", __FILE__, __func__, __LINE__);
-  // text display tests
-  display.setTextSize(1);
-  display.setTextColor(WHITE);
-  display.setCursor(0,0);
-  display.print("Hello, world!\n");
-  display.setTextColor(BLACK, WHITE); // 'inverted' text
-  display.printf("%f\n", 3.141592);
-  display.setTextSize(2);
-  display.setTextColor(WHITE);
-  display.printf("0x%8X\n", 0xDEADBEEF);
-  display.display();
-  sleep(2);
+	display.setTextSize(1);
+	display.setTextColor(WHITE);
+	display.setCursor(0,0);
+	display.print("Hello, world!\n");
+	display.setTextColor(BLACK, WHITE); // 'inverted' text
+	display.printf("%f\n", 3.141592);
+	display.setTextSize(2);
+	display.setTextColor(WHITE);
+	display.printf("0x%8X\n", 0xDEADBEEF);
+	display.display();
+	sleep(2);
  
+	// horizontal bargraph tests
 printf("%s:%s(%d) horizontal bargraph\n", __FILE__, __func__, __LINE__);
-  // horizontal bargraph tests
-  display.clearDisplay();
-  display.setTextSize(1);
-  display.setTextColor(WHITE);
+	display.clearDisplay();
+	display.setTextSize(1);
+	display.setTextColor(WHITE);
 	for ( i =0 ; i<=100 ; i++)
 	{
 		display.clearDisplay();
@@ -490,11 +511,11 @@ printf("%s:%s(%d) horizontal bargraph\n", __FILE__, __func__, __LINE__);
 		usleep(25000);
 	}
 
+	// vertical bargraph tests
 printf("%s:%s(%d) vertical bargraph\n", __FILE__, __func__, __LINE__);	
-  // vertical bargraph tests
-  display.clearDisplay();
-  display.setTextSize(1);
-  display.setTextColor(WHITE);
+	display.clearDisplay();
+	display.setTextSize(1);
+	display.setTextColor(WHITE);
 	for ( i =0 ; i<=100 ; i++)
 	{
 		display.clearDisplay();
@@ -505,27 +526,31 @@ printf("%s:%s(%d) vertical bargraph\n", __FILE__, __func__, __LINE__);
 		display.display();
 		usleep(25000);
 	}
-printf("%s:%s(%d) draw scrolling text\n", __FILE__, __func__, __LINE__);
-  // draw scrolling text
-  testscrolltext();
-  sleep(2);
-  display.clearDisplay();
 
+	// draw scrolling text
+printf("%s:%s(%d) draw scrolling text\n", __FILE__, __func__, __LINE__);
+	testscrolltext();
+	sleep(2);
+	display.clearDisplay();
+
+	// miniature bitmap display
 printf("%s:%s(%d) miniature bitmap\n", __FILE__, __func__, __LINE__);
-  // miniature bitmap display
-  display.clearDisplay();
-  display.drawBitmap(30, 16,  logo16_glcd_bmp, 16, 16, 1);
-  display.display();
+	display.clearDisplay();
+	display.drawBitmap(30, 16,  logo16_glcd_bmp, 16, 16, 1);
+	display.display();
+
+	// invert the display
 printf("%s:%s(%d) invert the display\n", __FILE__, __func__, __LINE__);
-  // invert the display
-  display.invertDisplay(true);
-  sleep(1); 
-  display.invertDisplay(false);
-  sleep(1); 
+	display.invertDisplay(true);
+	sleep(1); 
+	display.invertDisplay(false);
+	sleep(1); 
+
+	// draw a bitmap icon and 'animate' movement
 printf("%s:%s(%d) draw a bitmap icon and 'animate' movement\n", __FILE__, __func__, __LINE__);
-  // draw a bitmap icon and 'animate' movement
-  testdrawbitmap(logo16_glcd_bmp, LOGO16_GLCD_HEIGHT, LOGO16_GLCD_WIDTH);
+	testdrawbitmap(logo16_glcd_bmp, LOGO16_GLCD_HEIGHT, LOGO16_GLCD_WIDTH);
 printf("%s:%s(%d)\n", __FILE__, __func__, __LINE__);
+
 	// Free PI GPIO ports
 	display.close();
 printf("%s:%s(%d)\n", __FILE__, __func__, __LINE__);

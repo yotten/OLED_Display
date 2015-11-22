@@ -141,6 +141,7 @@ boolean Adafruit_SSD1306::select_oled(uint8_t OLED_TYPE)
 	switch (OLED_TYPE)
 	{
 		case OLED_ADAFRUIT_SPI_128x32:
+printf("%s(%d)\n", __func__, __LINE__);
 			ssd1306_lcdheight = 32;
 		break;
 
