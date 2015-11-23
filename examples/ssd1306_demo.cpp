@@ -94,7 +94,8 @@ void testdrawbitmap(const uint8_t *bitmap, uint8_t w, uint8_t h)
 		printf("dy: %d\n", icons[f][DELTAY]);
 	}
 
-	while (1) {
+	for (int32_t i = 0; i < 100; i++) {
+//	while (1) {
 		// draw each icon
 		for (uint8_t f = 0; f < NUMFLAKES; f++) {
 			display.drawBitmap(icons[f][XPOS], icons[f][YPOS], logo16_glcd_bmp, w, h, WHITE);
@@ -393,18 +394,15 @@ int main(int argc, char **argv)
 	parse_args(argc, argv);
 
 	// SPI
-	if (display.oled_is_spi_proto(opts.oled))
-	{
-		printf("%s:%s(%d)\n", __FILE__, __func__, __LINE__);
-		// SPI change parameters to fit to your LCD
-		if ( !display.init(OLED_SPI_DC,OLED_SPI_RESET,OLED_SPI_CS, opts.oled) )
-			exit(EXIT_FAILURE);
+	if (display.oled_is_spi_proto(opts.oled) != true) {
+		printf("%s(%d) oled_is_spi_proto() ERROR!\n", __func__, __LINE__);
+		exit(EXIT_FAILURE);
 	}
-	else
-	{
-		// I2C change parameters to fit to your LCD
-		if ( !display.init(OLED_I2C_RESET,opts.oled) )
-			exit(EXIT_FAILURE);
+
+	// SPI change parameters to fit to your LCD
+	if (display.init(OLED_SPI_DC,OLED_SPI_RESET,OLED_SPI_CS, opts.oled) != true) {
+		printf("%s(%d) init() ERROR!\n", __func__, __LINE__);
+		exit(EXIT_FAILURE);
 	}
 printf("%s:%s(%d) display.begin()\n", __FILE__, __func__, __LINE__);
 	display.begin();
@@ -549,11 +547,10 @@ printf("%s:%s(%d) invert the display\n", __FILE__, __func__, __LINE__);
 	// draw a bitmap icon and 'animate' movement
 printf("%s:%s(%d) draw a bitmap icon and 'animate' movement\n", __FILE__, __func__, __LINE__);
 	testdrawbitmap(logo16_glcd_bmp, LOGO16_GLCD_HEIGHT, LOGO16_GLCD_WIDTH);
-printf("%s:%s(%d)\n", __FILE__, __func__, __LINE__);
-
+	display.clearDisplay();
+	sleep(1);
 	// Free PI GPIO ports
 	display.close();
-printf("%s:%s(%d)\n", __FILE__, __func__, __LINE__);
 }
 
 

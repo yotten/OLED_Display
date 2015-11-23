@@ -66,17 +66,17 @@ void Adafruit_SSD1306::drawPixel(int16_t x, int16_t y, uint16_t color)
 		case 1:
 			swap(x, y);
 			x = WIDTH - x - 1;
-		break;
+			break;
 		
 		case 2:
 			x = WIDTH - x - 1;
 			y = HEIGHT - y - 1;
-		break;
+			break;
 		
 		case 3:
 			swap(x, y);
 			y = HEIGHT - y - 1;
-		break;
+			break;
 	}  
 
 	// Get where to do the change in the buffer
@@ -94,13 +94,13 @@ Adafruit_SSD1306::Adafruit_SSD1306()
 {
 	// Init all var, and clean
 	// Command I/O
-  rst = 0 ;
-  dc  = 0 ;
-  cs =  0 ;
+	rst = 0;
+	dc = 0;
+	cs = 0;
 	
 	// Lcd size
-  ssd1306_lcdwidth  = 0;
-  ssd1306_lcdheight = 0;
+	ssd1306_lcdwidth  = 0;
+	ssd1306_lcdheight = 0;
 	
 	// Empty pointer to OLED buffer
 	poledbuff = NULL;
@@ -115,7 +115,7 @@ boolean Adafruit_SSD1306::oled_is_spi_proto(uint8_t OLED_TYPE)
 	switch (OLED_TYPE)
 	{
 		case OLED_ADAFRUIT_SPI_128x32:
-		case OLED_ADAFRUIT_SPI_128x64:
+//		case OLED_ADAFRUIT_SPI_128x64:
 			return true;
 		break;
 	}
@@ -143,36 +143,35 @@ boolean Adafruit_SSD1306::select_oled(uint8_t OLED_TYPE)
 		case OLED_ADAFRUIT_SPI_128x32:
 printf("%s(%d)\n", __func__, __LINE__);
 			ssd1306_lcdheight = 32;
-		break;
+			break;
 
 		case OLED_ADAFRUIT_SPI_128x64:
-		;
-		break;
+			break;
 		
 		case OLED_ADAFRUIT_I2C_128x32:
 			ssd1306_lcdheight = 32;
 			_i2c_addr = ADAFRUIT_I2C_ADDRESS;
-		break;
+			break;
 
 		case OLED_ADAFRUIT_I2C_128x64:
 			_i2c_addr = ADAFRUIT_I2C_ADDRESS;
-		break;
+			break;
 		
 		case OLED_SEEED_I2C_128x64:
 			_i2c_addr = SEEEED_I2C_ADDRESS ;
 			vcc_type = SSD_External_Vcc;
-		break;
+			break;
 
 		case OLED_SEEED_I2C_96x96:
 			ssd1306_lcdwidth  = 96;
 			ssd1306_lcdheight = 96;
 			_i2c_addr = SEEEED_I2C_ADDRESS ;
-		break;
+			break;
 		
 		// houston, we have a problem
 		default:
 			return false;
-		break;
+			break;
 	}
 
 	// De-Allocate memory for OLED buffer if any
@@ -182,11 +181,11 @@ printf("%s(%d)\n", __func__, __LINE__);
 	// Allocate memory for OLED buffer
 	poledbuff = (uint8_t *) malloc ( (ssd1306_lcdwidth * ssd1306_lcdheight / 8 )); 
 	if (!poledbuff)
-    return false;
+		return false;
 
 	// Init Raspberry PI GPIO
-  if (!bcm2835_init())
-    return false;
+	if (!bcm2835_init())
+		return false;
 		
 	return true;
 	
@@ -197,8 +196,8 @@ printf("%s(%d)\n", __func__, __LINE__);
 boolean Adafruit_SSD1306::init(int8_t DC, int8_t RST, int8_t CS, uint8_t OLED_TYPE) 
 {
 	rst = RST;	// Reset Pin
-	dc = DC;		// Data / command Pin
-	cs = CS ;		// Raspberry SPI chip Enable (may be CE0 or CE1)
+	dc = DC;	// Data / command Pin
+	cs = CS;	// Raspberry SPI chip Enable (may be CE0 or CE1)
 	
 	// Select OLED parameters
 	if (!select_oled(OLED_TYPE))
@@ -256,15 +255,15 @@ void Adafruit_SSD1306::close(void)
 	poledbuff = NULL;
 
 	// Release Raspberry SPI
-	if ( isSPI() )
+	if (isSPI())
 		bcm2835_spi_end();
 
 		// Release Raspberry I2C
-	if ( isI2C() )
+	if (isI2C())
 		bcm2835_i2c_end();
 
 	// Release Raspberry I/O control
-  bcm2835_close();
+	bcm2835_close();
 }
 
 	
@@ -352,17 +351,17 @@ void Adafruit_SSD1306::invertDisplay(uint8_t i)
 void Adafruit_SSD1306::ssd1306_command(uint8_t c) 
 { 
 	// Is SPI
-  if (isSPI())
-  {
+	if (isSPI())
+	{
 		// Setup D/C line to low to switch to command mode
-	  bcm2835_gpio_write(dc, LOW);
+		bcm2835_gpio_write(dc, LOW);
 
 		// Write Data on SPI
-    fastSPIwrite(c);
-  }
+		fastSPIwrite(c);
+	}
   // so I2C
-  else
-  {
+	else
+	{
 		char buff[2] ;
 		
 		// Clear D/C to switch to command mode
@@ -371,7 +370,7 @@ void Adafruit_SSD1306::ssd1306_command(uint8_t c)
 		
 		// Write Data on I2C
 		fastI2Cwrite(buff, sizeof(buff))	;
-  }
+	}
 }
 
 void Adafruit_SSD1306::ssd1306_command(uint8_t c0, uint8_t c1) 
@@ -381,23 +380,23 @@ void Adafruit_SSD1306::ssd1306_command(uint8_t c0, uint8_t c1)
 	buff[2] = c1;
 
 	// Is SPI
-  if (isSPI())
-  {
+	if (isSPI())
+	{
 		// Setup D/C line to low to switch to command mode
-	  bcm2835_gpio_write(dc, LOW);
+		  bcm2835_gpio_write(dc, LOW);
 
 		// Write Data
-    fastSPIwrite(&buff[1], 2);
-  }
-  // I2C
-  else
-  {
+		fastSPIwrite(&buff[1], 2);
+	}
+	// I2C
+	else
+	{
 		// Clear D/C to switch to command mode
 		buff[0] = SSD_Command_Mode ;
 
 		// Write Data on I2C
 		fastI2Cwrite(buff, 3)	;
-  }
+	}
 }
 
 void Adafruit_SSD1306::ssd1306_command(uint8_t c0, uint8_t c1, uint8_t c2) 
@@ -409,23 +408,23 @@ void Adafruit_SSD1306::ssd1306_command(uint8_t c0, uint8_t c1, uint8_t c2)
 	buff[3] = c2;
 
 	// Is SPI
-  if (isSPI())
-  {
+	if (isSPI())
+	{
 		// Setup D/C line to low to switch to command mode
-	  bcm2835_gpio_write(dc, LOW);
+		  bcm2835_gpio_write(dc, LOW);
 
 		// Write Data
-    fastSPIwrite(&buff[1], 3);
-  }
-  // I2C
-  else
-  {
+		fastSPIwrite(&buff[1], 3);
+	}
+	// I2C
+	else
+	{
 		// Clear D/C to switch to command mode
 		buff[0] = SSD_Command_Mode; 
 
 		// Write Data on I2C
 		fastI2Cwrite(buff, sizeof(buff))	;
-  }
+	}
 }
 
 
@@ -505,18 +504,18 @@ void Adafruit_SSD1306::stopscroll(void)
 void Adafruit_SSD1306::ssd1306_data(uint8_t c) 
 {
 	// SPI
-  if ( isSPI())
-  {
-    // SPI
+	if (isSPI())
+	{
+		// SPI
 		// Setup D/C line to high to switch to data mode
-	  bcm2835_gpio_write(dc, HIGH);
+		bcm2835_gpio_write(dc, HIGH);
 
 		// write value
-    fastSPIwrite(c);
-  }
-  // I2C
-  else
-  {
+ 		fastSPIwrite(c);
+	}
+	// I2C
+	else
+	{
 		char buff[2] ;
 		
 		// Setup D/C to switch to data mode
@@ -525,14 +524,14 @@ void Adafruit_SSD1306::ssd1306_data(uint8_t c)
 
 		// Write on i2c
 		fastI2Cwrite(	buff, sizeof(buff))	;
-  }
+	}
 }
 
 void Adafruit_SSD1306::display(void) 
 {
-  ssd1306_command(SSD1306_SETLOWCOLUMN  | 0x0); // low col = 0
-  ssd1306_command(SSD1306_SETHIGHCOLUMN | 0x0); // hi col = 0
-  ssd1306_command(SSD1306_SETSTARTLINE  | 0x0); // line #0
+	ssd1306_command(SSD1306_SETLOWCOLUMN  | 0x0); // low col = 0
+	ssd1306_command(SSD1306_SETHIGHCOLUMN | 0x0); // hi col = 0
+	ssd1306_command(SSD1306_SETSTARTLINE  | 0x0); // line #0
 
 	uint16_t i=0 ;
 	
@@ -540,30 +539,29 @@ void Adafruit_SSD1306::display(void)
 	uint8_t * p = poledbuff;
 
 	// SPI
-  if ( isSPI())
-  {
+	if (isSPI())
+	{
 		// Setup D/C line to high to switch to data mode
-	  bcm2835_gpio_write(dc, HIGH);
+		bcm2835_gpio_write(dc, HIGH);
 
 		// Send all data to OLED
-    for ( i=0; i<(ssd1306_lcdwidth*ssd1306_lcdheight/8); i++) 
+		for ( i=0; i<(ssd1306_lcdwidth*ssd1306_lcdheight/8); i++) 
 		{
-      fastSPIwrite(*p++);
-    }
+			fastSPIwrite(*p++);
+		}
 
-    // i wonder why we have to do this (check datasheet)
-    if (ssd1306_lcdheight == 32) 
+		// i wonder why we have to do this (check datasheet)
+		if (ssd1306_lcdheight == 32) 
 		{
-      for (uint16_t i=0; i<(ssd1306_lcdwidth*ssd1306_lcdheight/8); i++) 
+			for (uint16_t i=0; i<(ssd1306_lcdwidth*ssd1306_lcdheight/8); i++) 
 			{
-        fastSPIwrite(0);
-      }
-    }
-		
-  }
-  // I2C
-  else
-  {
+				fastSPIwrite(0);
+			}
+		}
+  	}
+	// I2C
+	else
+	{
 		char buff[17] ;
 		uint8_t x ;
 
@@ -571,20 +569,20 @@ void Adafruit_SSD1306::display(void)
 		buff[0] = SSD_Data_Mode; 
 
 		// loop trough all OLED buffer and 
-    // send a bunch of 16 data byte in one xmission
-    for ( i=0; i<(ssd1306_lcdwidth*ssd1306_lcdheight/8); i+=16 ) 
+		// send a bunch of 16 data byte in one xmission
+		for ( i=0; i<(ssd1306_lcdwidth*ssd1306_lcdheight/8); i+=16 ) 
 		{
-      for (x=1; x<=16; x++) 
+			for (x=1; x<=16; x++) 
 				buff[x] = *p++;
 
 			fastI2Cwrite(	buff,  17);
-    }
-  }
+		}
+	}
 }
 
 // clear everything (in the buffer)
 void Adafruit_SSD1306::clearDisplay(void) 
 {
-  memset(poledbuff, 0, (ssd1306_lcdwidth*ssd1306_lcdheight/8));
+	memset(poledbuff, 0, (ssd1306_lcdwidth*ssd1306_lcdheight/8));
 }
 
