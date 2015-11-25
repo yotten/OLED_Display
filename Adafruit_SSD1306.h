@@ -129,8 +129,11 @@ public:
 
 private:
 	uint8_t *poledbuff;	// Pointer to OLED data buffer in memory
-	int8_t _i2c_addr, dc, rst, cs;
-	int16_t ssd1306_lcdwidth, ssd1306_lcdheight;
+	int8_t _i2c_addr;
+	int8_t m_dc;		// Data/Command
+	int8_t m_rst;		// Reset
+	int8_t m_cs;		// Chip Select 
+	int16_t m_lcdwidth, m_lcdheight;
 	uint8_t vcc_type;
 	
 	inline boolean isI2C(void);

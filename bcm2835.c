@@ -32,6 +32,13 @@
 #include <unistd.h>
 #include "bcm2835.h"
 
+#define DEBUG
+#ifdef DEBUG
+#define DBG_MSG(...) {printf("%s:%s(%d):", __FILE__, __func__, __LINE__);printf(__VA_ARGS__);}
+#else
+#define DBG_MSG(...)
+#endif
+
 // This define enables a little test program (by default a blinking output on pin RPI_GPIO_PIN_11)
 // You can do some safe, non-destructive testing on any platform with:
 // gcc bcm2835.c -D BCM2835_TEST
@@ -239,12 +246,14 @@ void bcm2835_peri_set_bits(volatile uint32_t* paddr, uint32_t value, uint32_t ma
 //      X / 10 + ((X % 10) * 3)
 void bcm2835_gpio_fsel(uint8_t pin, uint8_t mode)
 {
-    // Function selects are 10 pins per 32 bit word, 3 bits per pin
-    volatile uint32_t* paddr = bcm2835_gpio + BCM2835_GPFSEL0/4 + (pin/10);
-    uint8_t   shift = (pin % 10) * 3;
-    uint32_t  mask = BCM2835_GPIO_FSEL_MASK << shift;
-    uint32_t  value = mode << shift;
-    bcm2835_peri_set_bits(paddr, value, mask);
+	// Function selects are 10 pins per 32 bit word, 3 bits per pin
+	volatile uint32_t* paddr = bcm2835_gpio + BCM2835_GPFSEL0/4 + (pin/10);
+	uint8_t   shift = (pin % 10) * 3;
+	uint32_t  mask = BCM2835_GPIO_FSEL_MASK << shift;
+	uint32_t  value = mode << shift;
+
+	DBG_MSG("%s:%s(%d) paddr=0x%08x, value=0x%08x, mask=0x%08x\n", __FILE__, __func__, __LINE__, paddr, value, mask);	
+	bcm2835_peri_set_bits(paddr, value, mask);
 }
 
 // Set output pin
@@ -537,6 +546,7 @@ void bcm2835_spi_begin(uint8_t cs)
 {
 	volatile uint32_t* paddr = bcm2835_spi0 + BCM2835_SPI0_CS / 4;
 
+	DBG_MSG("IN cs=%d\n", cs);
 	// Set the SPI0 pins to the Alt 0 function to enable SPI0 access on them
 		// except if we need custom Chip Select Pin 
 		// printf("bcm2835_spi_begin -> spi_custom_cs = %d \n",cs );
@@ -548,12 +558,12 @@ void bcm2835_spi_begin(uint8_t cs)
 		spi_custom_cs = cs ;
 
 		// ok hard CE1 not working, drive it manually
-		if (cs == BCM2835_SPI_CS1 ) {
+		if (cs == BCM2835_SPI_CS1) {
 			// Dirty Hack CE1 in now custom Chip Select GPIO 26
 			// the real CE1 pin
-			spi_custom_cs = RPI_GPIO_P1_26 ; 
+			spi_custom_cs = RPI_GPIO_P1_26; 
 				
-			bcm2835_gpio_fsel(spi_custom_cs, BCM2835_GPIO_FSEL_OUTP); 
+			bcm2835_gpio_fsel(spi_custom_cs, BCM2835_GPIO_FSEL_OUTP); // BCM2835_GPIO_FSEL_OUTP=0b001 
 			bcm2835_gpio_write(spi_custom_cs, HIGH);
 		}
 
@@ -594,19 +604,19 @@ void bcm2835_spi_begin(uint8_t cs)
 
 void bcm2835_spi_end(void)
 {  
-    // Set all the SPI0 pins back to input
-		if (spi_custom_cs == 0)
-		{
-			bcm2835_gpio_fsel(RPI_GPIO_P1_26, BCM2835_GPIO_FSEL_INPT); // CE1
-			bcm2835_gpio_fsel(RPI_GPIO_P1_24, BCM2835_GPIO_FSEL_INPT); // CE0
-		}
-		else
-		{
-			bcm2835_gpio_fsel(spi_custom_cs, BCM2835_GPIO_FSEL_INPT); // Custom GPIO
-		}
-    bcm2835_gpio_fsel(RPI_GPIO_P1_21, BCM2835_GPIO_FSEL_INPT); // MISO
-    bcm2835_gpio_fsel(RPI_GPIO_P1_19, BCM2835_GPIO_FSEL_INPT); // MOSI
-    bcm2835_gpio_fsel(RPI_GPIO_P1_23, BCM2835_GPIO_FSEL_INPT); // CLK
+	// Set all the SPI0 pins back to input
+	if (spi_custom_cs == 0)
+	{
+		bcm2835_gpio_fsel(RPI_GPIO_P1_26, BCM2835_GPIO_FSEL_INPT); // CE1
+		bcm2835_gpio_fsel(RPI_GPIO_P1_24, BCM2835_GPIO_FSEL_INPT); // CE0
+	}
+	else
+	{
+		bcm2835_gpio_fsel(spi_custom_cs, BCM2835_GPIO_FSEL_INPT); // Custom GPIO
+	}
+	bcm2835_gpio_fsel(RPI_GPIO_P1_21, BCM2835_GPIO_FSEL_INPT); // MISO
+	bcm2835_gpio_fsel(RPI_GPIO_P1_19, BCM2835_GPIO_FSEL_INPT); // MOSI
+	bcm2835_gpio_fsel(RPI_GPIO_P1_23, BCM2835_GPIO_FSEL_INPT); // CLK
 }
 
 
@@ -649,11 +659,11 @@ void bcm2835_spi_setDataMode(uint8_t mode)
 // Writes (and reads) a single byte to SPI
 uint8_t bcm2835_spi_transfer(uint8_t value)
 {
-    volatile uint32_t* paddr = bcm2835_spi0 + BCM2835_SPI0_CS/4;
-    volatile uint32_t* fifo = bcm2835_spi0 + BCM2835_SPI0_FIFO/4;
+	volatile uint32_t* paddr = bcm2835_spi0 + BCM2835_SPI0_CS/4;
+	volatile uint32_t* fifo = bcm2835_spi0 + BCM2835_SPI0_FIFO/4;
 
-		// Custom chip select LOW
-		bcm2835_spi_setChipSelect(LOW);
+	// Custom chip select LOW
+	bcm2835_spi_setChipSelect(LOW);
 
     // This is Polled transfer as per section 10.6.1
     // BUG ALERT: what happens if we get interupted in this section, and someone else
@@ -681,8 +691,8 @@ uint8_t bcm2835_spi_transfer(uint8_t value)
     // Set TA = 0, and also set the barrier
     bcm2835_peri_set_bits(paddr, 0, BCM2835_SPI0_CS_TA);
 
-		// Custom chip select HIGH
-		bcm2835_spi_setChipSelect(HIGH);
+	// Custom chip select HIGH
+	bcm2835_spi_setChipSelect(HIGH);
 
     return ret;
 }
@@ -693,8 +703,8 @@ void bcm2835_spi_transfernb(char* tbuf, char* rbuf, uint32_t len)
     volatile uint32_t* paddr = bcm2835_spi0 + BCM2835_SPI0_CS/4;
     volatile uint32_t* fifo = bcm2835_spi0 + BCM2835_SPI0_FIFO/4;
 
-		// Custom chip select LOW
-		bcm2835_spi_setChipSelect(LOW);
+	// Custom chip select LOW
+	bcm2835_spi_setChipSelect(LOW);
 
     // This is Polled transfer as per section 10.6.1
     // BUG ALERT: what happens if we get interupted in this section, and someone else
@@ -730,8 +740,8 @@ void bcm2835_spi_transfernb(char* tbuf, char* rbuf, uint32_t len)
     // Set TA = 0, and also set the barrier
     bcm2835_peri_set_bits(paddr, 0, BCM2835_SPI0_CS_TA);
 
-		// Custom chip select HIGH
-		bcm2835_spi_setChipSelect(HIGH);
+	// Custom chip select HIGH
+	bcm2835_spi_setChipSelect(HIGH);
 	
 }
 
@@ -741,8 +751,8 @@ void bcm2835_spi_writenb(char* tbuf, uint32_t len)
     volatile uint32_t* paddr = bcm2835_spi0 + BCM2835_SPI0_CS/4;
     volatile uint32_t* fifo = bcm2835_spi0 + BCM2835_SPI0_FIFO/4;
 
-		// Custom chip select LOW
-		bcm2835_spi_setChipSelect(LOW);
+	// Custom chip select LOW
+	bcm2835_spi_setChipSelect(LOW);
 
     // This is Polled transfer as per section 10.6.1
     // BUG ALERT: what happens if we get interrupted in this section, and someone else
@@ -772,8 +782,8 @@ void bcm2835_spi_writenb(char* tbuf, uint32_t len)
     // Set TA = 0, and also set the barrier
     bcm2835_peri_set_bits(paddr, 0, BCM2835_SPI0_CS_TA);
 
-		// Custom chip select HIGH
-		bcm2835_spi_setChipSelect(HIGH);
+	// Custom chip select HIGH
+	bcm2835_spi_setChipSelect(HIGH);
 }
 
 // Writes (and reads) an number of bytes to SPI
@@ -793,14 +803,14 @@ void bcm2835_spi_setChipSelectPolarity(uint8_t cs, uint8_t active)
 {
     volatile uint32_t* paddr = bcm2835_spi0 + BCM2835_SPI0_CS/4;
 
-		// only valid for no custom CS
-		if (cs <= BCM2835_SPI_CS_NONE)
-		{
-			uint8_t shift = 21 + cs;
-			
-			// Mask in the appropriate CSPOLn bit
-			bcm2835_peri_set_bits(paddr, active << shift, 1 << shift);
-		}
+	// only valid for no custom CS
+	if (cs <= BCM2835_SPI_CS_NONE)
+	{
+		uint8_t shift = 21 + cs;
+		
+		// Mask in the appropriate CSPOLn bit
+		bcm2835_peri_set_bits(paddr, active << shift, 1 << shift);
+	}
 }
 
 int bcm2835_i2c_begin(void)
@@ -847,7 +857,7 @@ void bcm2835_i2c_set_baudrate(uint32_t baudrate)
 	// use 0xFFFE mask to limit a max value and round down any odd number
 	divider = (BCM2835_CORE_CLK_HZ / baudrate) & 0xFFFE;
 	
-  bcm2835_peri_write(paddr, divider);
+	bcm2835_peri_write(paddr, divider);
 }
 
 // Writes an number of bytes to I2C
